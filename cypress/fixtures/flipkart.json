@@ -1,0 +1,18 @@
+{
+  "name": "bob",
+  "gender": "Female",
+  "productName": {
+    "mobile": "Mobiles"
+  },
+  "homePageTitle":"Search Store Online - Buy Search Online at Best Price in India | Flipkart.com",
+  "mobilePageTitle": "Mobile Phones Online at Best Prices in India",
+  "mobile": {
+    "filters":{
+      "RAM":{
+        "eightGBandabove": "8 GB and Above"
+      }
+
+    }
+
+  }
+}
