@@ -1,8 +1,13 @@
 //custom Commands
 
 Cypress.Commands.add('selectFilterCheckbox', (value) =>  {
-    cy.get('div').contains('' +value+ '').click({force:true})
+    cy.get('label.vertical-filters-label').contains('' +value+ '').click({force:true})
 })
+
+// Cypress.Commands.add('selectFilterCheckbox', (value) =>  {
+//     cy.get('input').should('have.value', '' +value+ '').click({force:true})
+// })
+
 
 //// -- This is a parent command --
 // -- This is a child command --

@@ -8,17 +8,20 @@
     "test": "node_modules\\.bin\\cypress run",
     "headtest": "npm run test -- --headed",
     "chrometest": "npm run test -- --browser chrome",
+    "headlessChromeTest": "npm run test --headless --browser chrome",
+    "udemytest": "npm run test -- --spec cypress/integration/examples/UdemyTest.js",
     "recordDashBoardtest": "npx cypress run --record --key 90e4df38-7164-45fc-8af5-ad2f9e51c3bb --reporter mochawesome"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "cypress": "^12.14.0",
+    "cypress": "^12.17.4",
     "cypress-sql-server": "^1.0.0"
   },
   "dependencies": {
     "-": "^0.0.1",
     "cypress-iframe": "^1.0.1",
-    "D": "^1.0.0"
+    "D": "^1.0.0",
+    "mochawesome": "^7.1.3"
   }
 }
