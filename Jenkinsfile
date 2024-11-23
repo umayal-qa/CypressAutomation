@@ -39,6 +39,8 @@ pipeline {
                     image.inside {
                         // Run basic tests or health checks
                         sh 'echo "Running tests"'
+                        sh 'npm install'
+                        sh 'npm run headlessChromeTest'
                     }
                 }
             }
