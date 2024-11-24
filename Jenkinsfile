@@ -54,8 +54,12 @@ pipeline {
 
         stage('Push Docker Image') {
             when {
-                branch 'main'  // Optional: Push only for the main branch, or any branch you choose
-                status 'SUCCESS'  // Only push if the tests passed // Push only if the tests passed
+                allOf {
+                    branch 'main'  // Optional: Push only for the main branch, or any branch you choose
+                    expression {
+                        return currentBuild.result == 'SUCCESS'  // Only push if the tests passed
+                    }
+                }
             }
             steps {
                 script {
@@ -81,5 +85,4 @@ pipeline {
             echo 'Tests failed, Docker image not pushed.'
         }
     }
-    //try
 }
