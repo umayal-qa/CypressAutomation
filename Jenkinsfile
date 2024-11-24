@@ -21,21 +21,33 @@ pipeline {
         stage('Check Docker Info') {
             steps {
                 script {
-                    // Run `docker info` to check Docker status and environment
-                    sh 'docker info'
+                    // Capture the output of docker info
+                    def dockerInfo = sh(script: 'docker info', returnStdout: true).trim()
+                    // Print it to the console explicitly
+                    echo "Docker Info: \n${dockerInfo}"
                 }
             }
-        }
+    }
+
 
         stage('Build Docker Image') {
             steps {
                 script {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                    
+                    // Debug: Print environment variables to ensure they are set correctly
+                    echo "Building Docker image with the following tag: ${imageTag}"
+                    echo "REGISTRY: ${REGISTRY}"
+                    echo "IMAGE_NAME: ${IMAGE_NAME}"
+                    echo "COMMIT_HASH: ${COMMIT_HASH}"
+                    echo "BUILD_NUMBER: ${BUILD_NUMBER}"
+                    
                     // Build the Docker image using the Dockerfile, with no cache
                     sh "docker build --no-cache -t ${imageTag} ."
                 }
             }
-        }
+}
+
 
         stage('Run Cypress Tests') {
             steps {
