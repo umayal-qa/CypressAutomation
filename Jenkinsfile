@@ -18,6 +18,29 @@ pipeline {
             }
         }
 
+        stage('Debug PATH') {
+            steps {
+                script {
+                    // Print the system PATH to check if required tools are available
+                    // sh 'echo $PATH'  // For Unix/Linux
+                    // or
+                    bat 'echo %PATH%'  // For Windows
+                }
+            }
+        }
+
+        stage('Check Docker') {
+            steps {
+                script {
+                    //sh 'which docker'  // For Unix/Linux
+                    // or
+                    bat 'where docker'  // For Windows
+                }
+            }
+        }
+
+
+
         stage('Check Docker Info') {
             steps {
                 script {
