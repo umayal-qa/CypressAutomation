@@ -64,6 +64,7 @@ pipeline {
     post {
         always {
             // Clean up Docker artifacts to avoid accumulation of unused data
+            //test1
             sh 'docker system prune -f'
         }
     }
