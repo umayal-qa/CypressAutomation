@@ -35,8 +35,7 @@ pipeline {
                 script {
                     // Run Cypress tests in headless mode inside the container
                     def image = docker.image("${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}")
-                    image.inside("--entrypoint=''") {
-                        // Run the tests in headless mode using Cypress
+                    image.inside('--entrypoint="" --privileged') {
                         sh 'npx cypress run --headless --browser chrome'
                     }
                 }
