@@ -1,7 +1,7 @@
 {
   "name": "cypressautomation",
   "version": "1.0.0",
-  "description": "",
+  "description": "A project with Cypress and other dependencies",
   "main": "index.js",
   "scripts": {
     "open": "node_modules\\.bin\\cypress open",
@@ -16,12 +16,19 @@
   "license": "ISC",
   "devDependencies": {
     "cypress": "^12.17.4",
-    "cypress-sql-server": "^1.0.0"
+    "cypress-sql-server": "^1.0.0",
+     "lodash": "^4.17.21",
+    "axios": "^0.27.2"
   },
   "dependencies": {
     "-": "^0.0.1",
     "cypress-iframe": "^1.0.1",
     "D": "^1.0.0",
-    "mochawesome": "^7.1.3"
+    "mochawesome": "^7.1.3",
+    "mocha": "^9.0.0",
+    "chai": "^4.3.4"
+  },
+  "engines": {
+    "node": "14.x"
   }
 }
