@@ -81,4 +81,5 @@ pipeline {
             echo 'Tests failed, Docker image not pushed.'
         }
     }
+    //try
 }
