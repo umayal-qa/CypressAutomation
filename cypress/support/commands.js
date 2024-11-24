@@ -3,6 +3,7 @@
 Cypress.Commands.add('selectFilterCheckbox', (value) =>  {
     cy.get('label.vertical-filters-label').contains('' +value+ '').click({force:true})
 })
+//triggering commit
 
 // Cypress.Commands.add('selectFilterCheckbox', (value) =>  {
 //     cy.get('input').should('have.value', '' +value+ '').click({force:true})
