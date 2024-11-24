@@ -7,6 +7,7 @@ pipeline {
         REGISTRY = 'docker.io'  // Docker Hub registry
         DOCKER_CREDENTIALS_ID = 'dockerhub-creds'  // Jenkins Docker credentials ID
         GIT_REPO_URL = 'https://github.com/umayal-qa/CypressAutomation.git'
+        CYPRESS_ENV = 'staging' // Example: specify your Cypress environment here
     }
 
     stages {
@@ -25,7 +26,6 @@ pipeline {
             }
         }
 
-        // Build Docker Image with no-cache option
         stage('Build Docker Image') {
             steps {
                 script {
@@ -38,17 +38,25 @@ pipeline {
         stage('Run Cypress Tests') {
             steps {
                 script {
-                    // Run Cypress tests in headless mode inside the container
                     def image = docker.image("${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}")
                     image.inside() {
-                        // Execute Cypress tests inside the container
-                        sh 'npx cypress run --headless --browser chrome'
+                        if (isUnix()) {
+                            // On Unix-like systems (Linux/MacOS), use `nohup` or `&` to run Cypress tests in the background
+                            sh 'nohup npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV} &'
+                        } else if (isWindows()) {
+                            // On Windows, use `start /B` to run Cypress tests in the background
+                            bat 'start /B npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}'
+                        }
                     }
                 }
             }
         }
 
         stage('Push Docker Image') {
+            when {
+                branch 'main'  // Optional: Push only for the main branch, or any branch you choose
+                status 'SUCCESS'  // Only push if the tests passed
+            }
             steps {
                 script {
                     // Log in to Docker registry using Jenkins credentials
@@ -64,8 +72,13 @@ pipeline {
     post {
         always {
             // Clean up Docker artifacts to avoid accumulation of unused data
-            //test1
             sh 'docker system prune -f'
+        }
+        success {
+            echo 'Tests passed, Docker image pushed successfully.'
+        }
+        failure {
+            echo 'Tests failed, Docker image not pushed.'
         }
     }
 }
