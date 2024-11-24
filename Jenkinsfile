@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        // Define environment variables (change as per your setup)
+        // Define environment variables (customize as per your setup)
         IMAGE_NAME = 'cypress-docker-image'
-        BUILD_NUMBER = "${GIT_COMMIT}"
-        REGISTRY = 'docker.io'  // Example: Docker Hub, change if using another registry
+        BUILD_NUMBER = "${GIT_COMMIT}"  // Git commit hash used as build version
+        REGISTRY = 'docker.io'  // Example Docker registry (Docker Hub)
         DOCKER_CREDENTIALS_ID = 'dockerhub-creds'  // Jenkins credentials ID for Docker registry
         GIT_REPO_URL = 'https://github.com/umayal-qa/CypressAutomation.git'
     }
@@ -29,28 +29,25 @@ pipeline {
             }
         }
 
-        // Stage 3: Test Docker Image
-        stage('Test Docker Image') {
+        // Stage 3: Run Cypress Tests in Headless Mode
+        stage('Run Cypress Tests') {
             steps {
                 script {
-                    // You can add your own test or health check here.
-                    // For example, running a container and checking its health.
+                    // Run Cypress tests in headless mode inside the container
                     def image = docker.image("${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}")
-                    image.inside {
-                        // Run basic tests or health checks
-                        sh 'echo "Running tests"'
-                        sh 'npm install'
-                        sh 'npm run headlessChromeTest'
+                    image.inside("--entrypoint=''") {
+                        // Run the tests in headless mode using Cypress
+                        sh 'npx cypress run --headless --browser chrome'
                     }
                 }
             }
         }
 
-        // Stage 4: Push Docker Image
+        // Stage 4: Push Docker Image to Registry
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Log in to Docker registry using credentials stored in Jenkins
+                    // Log in to Docker registry using Jenkins credentials
                     docker.withRegistry('https://hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
                         // Push the Docker image to the registry
                         docker.image("${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}").push()
@@ -60,10 +57,9 @@ pipeline {
         }
     }
 
-    // Post section: actions to be executed after the stages
     post {
         always {
-            // Clean up after the job (optional)
+            // Clean up Docker artifacts to avoid accumulation of unused data
             sh 'docker system prune -f'
         }
     }
