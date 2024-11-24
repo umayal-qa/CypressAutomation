@@ -55,7 +55,7 @@ pipeline {
         stage('Push Docker Image') {
             when {
                 branch 'main'  // Optional: Push only for the main branch, or any branch you choose
-                expression { return currentBuild.result == 'SUCCESS' } // Push only if the tests passed
+                status 'SUCCESS'  // Only push if the tests passed // Push only if the tests passed
             }
             steps {
                 script {
