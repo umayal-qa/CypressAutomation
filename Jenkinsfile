@@ -83,11 +83,14 @@ pipeline {
 
     post {
         always {
-            // Clean up Docker artifacts to avoid accumulation of unused data
-            if (isUnix()) {
-                sh 'docker system prune -f'
-            } else if (isWindows()) {
-                bat 'docker system prune -f'
+
+            script {
+                // Clean up Docker artifacts to avoid accumulation of unused data
+                if (isUnix()) {
+                    sh 'docker system prune -f'
+                } else if (isWindows()) {
+                    bat 'docker system prune -f'
+                }
             }
         }
         success {
