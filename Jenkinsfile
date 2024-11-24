@@ -13,12 +13,11 @@ pipeline {
         stage('Check Docker Info') {
             steps {
                 script {
+                    // Correct placement of the conditional logic inside the script block
                     if (isUnix()) {
-                        // For Unix-like agents (Linux/macOS)
                         def dockerInfo = sh(script: 'docker info', returnStdout: true).trim()
                         echo "Docker Info: \n${dockerInfo}"
                     } else if (isWindows()) {
-                        // For Windows agents
                         def dockerInfo = bat(script: 'docker info', returnStdout: true).trim()
                         echo "Docker Info: \n${dockerInfo}"
                     }
@@ -39,10 +38,8 @@ pipeline {
                     echo "BUILD_NUMBER: ${BUILD_NUMBER}"
                     
                     if (isUnix()) {
-                        // For Unix-like agents (Linux/macOS)
                         sh "docker build --no-cache -t ${imageTag} ."
                     } else if (isWindows()) {
-                        // For Windows agents
                         bat "docker build --no-cache -t ${imageTag} ."
                     }
                 }
@@ -88,10 +85,8 @@ pipeline {
         always {
             // Clean up Docker artifacts to avoid accumulation of unused data
             if (isUnix()) {
-                // For Unix-like agents (Linux/macOS)
                 sh 'docker system prune -f'
             } else if (isWindows()) {
-                // For Windows agents
                 bat 'docker system prune -f'
             }
         }
