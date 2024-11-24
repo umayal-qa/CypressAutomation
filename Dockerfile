@@ -4,14 +4,11 @@ FROM cypress/browsers:node16.13.0-chrome94-ff93
 # Set working directory
 WORKDIR /app
 
-# Copy project files into the container
-COPY . .
+# Copy only package files first to take advantage of Docker cache
+COPY package*.json ./
 
 # Install dependencies for the project (including Cypress)
 RUN npm install
-
-# Install Cypress (if it's not already in package.json or node_modules)
-RUN npx cypress install
 
 # Install any additional dependencies that may be required for Cypress to run headlessly
 RUN apt-get update && apt-get install -y \
@@ -29,6 +26,12 @@ RUN apt-get update && apt-get install -y \
     libu2f-udev \
     libgdk-pixbuf2.0-0 \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy the rest of the project files into the container
+COPY . .
+
+# Install Cypress (if it's not already in package.json or node_modules)
+RUN npx cypress install
 
 # Set the default entrypoint for the container to run Cypress tests
 ENTRYPOINT ["npx", "cypress", "run"]
