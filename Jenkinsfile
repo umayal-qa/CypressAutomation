@@ -52,22 +52,16 @@ pipeline {
                 script {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
                     def image = docker.image(imageTag)
-                    
-                    // Mount workspace with proper path for Windows
-                    def workspaceVolume = isUnix() ? "/workspace" : "/c/ProgramData/Jenkins/.jenkins/workspace/Docker_Build_Image"
-                    
-                    image.inside("-v ${workspaceVolume}:${workspaceVolume}") {
-                        if (isUnix()) {
-                            // Run Cypress tests on Unix-like systems (Linux/MacOS)
-                            sh 'npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}'
-                        } else {
-                            // Run Cypress tests on Windows
-                            bat 'npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}'
-                        }
+                    // Manually run the container with necessary options if `docker.inside()` is problematic.
+                    if (isUnix()) {
+                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}"
+                    } else {
+                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}"
                     }
                 }
             }
         }
+
 
         stage('Push Docker Image') {
             when {
