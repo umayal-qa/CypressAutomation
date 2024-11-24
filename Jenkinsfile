@@ -17,8 +17,7 @@ pipeline {
                     if (isUnix()) {
                         def dockerInfo = sh(script: 'docker info', returnStdout: true).trim()
                         echo "Docker Info: \n${dockerInfo}"
-                    } else {
-                        // For Windows, use bat instead of isWindows()
+                    } else if (isWindows()) {
                         def dockerInfo = bat(script: 'docker info', returnStdout: true).trim()
                         echo "Docker Info: \n${dockerInfo}"
                     }
@@ -40,8 +39,7 @@ pipeline {
                     
                     if (isUnix()) {
                         sh "docker build --no-cache -t ${imageTag} ."
-                    } else {
-                        // For Windows, use bat instead of sh
+                    } else if (isWindows()) {
                         bat "docker build --no-cache -t ${imageTag} ."
                     }
                 }
@@ -57,8 +55,8 @@ pipeline {
                         if (isUnix()) {
                             // Run Cypress tests in the foreground on Unix-like systems (Linux/MacOS)
                             sh 'npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}'
-                        } else {
-                            // For Windows, use bat instead of sh
+                        } else if (isWindows()) {
+                            // Run Cypress tests in the foreground on Windows
                             bat 'npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}'
                         }
                     }
@@ -66,8 +64,6 @@ pipeline {
             }
         }
 
-        // Optional: Uncomment the following stage for pushing the Docker image to the registry
-        
         stage('Push Docker Image') {
             when {
                 allOf {
@@ -83,8 +79,6 @@ pipeline {
                 }
             }
         }
-        
-
     }
 
     post {
@@ -93,8 +87,7 @@ pipeline {
                 // Clean up Docker artifacts to avoid accumulation of unused data
                 if (isUnix()) {
                     sh 'docker system prune -f'
-                } else {
-                    // For Windows, use bat instead of sh
+                } else if (isWindows()) {
                     bat 'docker system prune -f'
                 }
             }
