@@ -1,26 +1,29 @@
 const { defineConfig } = require("cypress");
-const sqlServer = require('cypress-sql-server');
+
 module.exports = defineConfig({
   projectId: 'zn2qwz',
   chromeWebSecurity: false,
-  env:
-  {
-    "url":"https://www.myntra.com"
+  
+  env: {
+    "url": process.env.MYNTRA_URL || "https://www.myntra.com",  // Use environment variable for URL
   },
-  headers: { "Accept-Encoding": "gzip, deflate" } ,
-  retries:
-  {
-    runMode: 1
+
+  retries: {
+    runMode: 2, // Set retries for stability
+    openMode: 0, // No retries in open mode (GUI)
   },
+
   e2e: {
-    defaultCommandTimeout:60000,
-    pageLoadTimeout:600000,
-    specPattern: 'cypress/integration/examples/MyntraTest.js',
+    defaultCommandTimeout: 30000, // Reduced timeout for quicker feedback
+    pageLoadTimeout: 120000, // Reduced page load timeout for quicker feedback
+    specPattern: 'cypress/integration/**/*.spec.js', // Use glob pattern for flexibility
     setupNodeEvents(on, config) {
-      // implement node event listeners here
-  
+      // Add event listeners for plugins or custom actions if needed
+      // Example: sqlServer.addCypressSQLPlugin(on, config);
     },
-   
   },
-  
+
+  headers: { 
+    "Accept-Encoding": "gzip, deflate" 
+  },
 });
