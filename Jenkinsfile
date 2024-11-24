@@ -16,11 +16,21 @@ pipeline {
             }
         }
 
+        stage('Check Docker Info') {
+            steps {
+                script {
+                    // Run `docker info` to check Docker status and environment
+                    sh 'docker info'
+                }
+            }
+        }
+
+        // Build Docker Image with no-cache option
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image using the Dockerfile
-                    docker.build("${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}")
+                    // Build the Docker image using the Dockerfile, with no cache
+                    sh "docker build --no-cache -t ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} ."
                 }
             }
         }
