@@ -13,15 +13,14 @@ pipeline {
         stage('Check Docker Info') {
             steps {
                 script {
-                    // Correct placement of the conditional logic inside the script block
+                    // Determine platform dynamically
+                    def dockerInfo
                     if (isUnix()) {
-                        def dockerInfo = sh(script: 'docker info', returnStdout: true).trim()
-                        echo "Docker Info: \n${dockerInfo}"
+                        dockerInfo = sh(script: 'docker info', returnStdout: true).trim()
                     } else {
-                        // For Windows, use bat instead of isWindows()
-                        def dockerInfo = bat(script: 'docker info', returnStdout: true).trim()
-                        echo "Docker Info: \n${dockerInfo}"
+                        dockerInfo = bat(script: 'docker info', returnStdout: true).trim()
                     }
+                    echo "Docker Info: \n${dockerInfo}"
                 }
             }
         }
@@ -38,10 +37,10 @@ pipeline {
                     echo "COMMIT_HASH: ${COMMIT_HASH}"
                     echo "BUILD_NUMBER: ${BUILD_NUMBER}"
                     
+                    // Build the image depending on the platform
                     if (isUnix()) {
                         sh "docker build --no-cache -t ${imageTag} ."
                     } else {
-                        // For Windows, use bat instead of sh
                         bat "docker build --no-cache -t ${imageTag} ."
                     }
                 }
@@ -53,12 +52,16 @@ pipeline {
                 script {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
                     def image = docker.image(imageTag)
-                    image.inside() {
+                    
+                    // Mount workspace with proper path for Windows
+                    def workspaceVolume = isUnix() ? "/workspace" : "/c/ProgramData/Jenkins/.jenkins/workspace/Docker_Build_Image"
+                    
+                    image.inside("-v ${workspaceVolume}:${workspaceVolume}") {
                         if (isUnix()) {
-                            // Run Cypress tests in the foreground on Unix-like systems (Linux/MacOS)
+                            // Run Cypress tests on Unix-like systems (Linux/MacOS)
                             sh 'npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}'
                         } else {
-                            // For Windows, use bat instead of sh
+                            // Run Cypress tests on Windows
                             bat 'npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}'
                         }
                     }
@@ -66,8 +69,6 @@ pipeline {
             }
         }
 
-        // Optional: Uncomment the following stage for pushing the Docker image to the registry
-        
         stage('Push Docker Image') {
             when {
                 allOf {
@@ -83,8 +84,6 @@ pipeline {
                 }
             }
         }
-        
-
     }
 
     post {
@@ -94,16 +93,15 @@ pipeline {
                 if (isUnix()) {
                     sh 'docker system prune -f'
                 } else {
-                    // For Windows, use bat instead of sh
                     bat 'docker system prune -f'
                 }
             }
         }
-        // success {
-        //     echo 'Tests passed, Docker image pushed successfully.'
-        // }
-        // failure {
-        //     echo 'Tests failed, Docker image not pushed.'
-        // }
+        success {
+            echo 'Tests passed, Docker image pushed successfully.'
+        }
+        failure {
+            echo 'Tests failed, Docker image not pushed.'
+        }
     }
 }
