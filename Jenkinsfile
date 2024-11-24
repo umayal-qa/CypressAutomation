@@ -64,40 +64,40 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
-            when {
-                allOf {
-                    branch 'main'
-                    expression { currentBuild.result == 'SUCCESS' }
-                }
-            }
-            steps {
-                script {
-                    docker.withRegistry('https://hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
-                        docker.image("${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}").push()
-                    }
-                }
-            }
-        }
-    }
+//         stage('Push Docker Image') {
+//             when {
+//                 allOf {
+//                     branch 'main'
+//                     expression { currentBuild.result == 'SUCCESS' }
+//                 }
+//             }
+//             steps {
+//                 script {
+//                     docker.withRegistry('https://hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
+//                         docker.image("${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}").push()
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
-    post {
-        always {
+//     post {
+//         always {
 
-            script {
-                // Clean up Docker artifacts to avoid accumulation of unused data
-                if (isUnix()) {
-                    sh 'docker system prune -f'
-                } else if (isWindows()) {
-                    bat 'docker system prune -f'
-                }
-            }
-        }
-        success {
-            echo 'Tests passed, Docker image pushed successfully.'
-        }
-        failure {
-            echo 'Tests failed, Docker image not pushed.'
-        }
+//             script {
+//                 // Clean up Docker artifacts to avoid accumulation of unused data
+//                 if (isUnix()) {
+//                     sh 'docker system prune -f'
+//                 } else if (isWindows()) {
+//                     bat 'docker system prune -f'
+//                 }
+//             }
+//         }
+//         success {
+//             echo 'Tests passed, Docker image pushed successfully.'
+//         }
+//         failure {
+//             echo 'Tests failed, Docker image not pushed.'
+//         }
     }
 }
