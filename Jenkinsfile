@@ -67,7 +67,7 @@ pipeline {
         }
 
         // Optional: Uncomment the following stage for pushing the Docker image to the registry
-        /*
+        
         stage('Push Docker Image') {
             when {
                 allOf {
@@ -83,7 +83,7 @@ pipeline {
                 }
             }
         }
-        */
+        
 
     }
 
