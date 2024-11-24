@@ -17,7 +17,8 @@ pipeline {
                     if (isUnix()) {
                         def dockerInfo = sh(script: 'docker info', returnStdout: true).trim()
                         echo "Docker Info: \n${dockerInfo}"
-                    } else if (isWindows()) {
+                    } else {
+                        // For Windows, use bat instead of isWindows()
                         def dockerInfo = bat(script: 'docker info', returnStdout: true).trim()
                         echo "Docker Info: \n${dockerInfo}"
                     }
@@ -39,7 +40,8 @@ pipeline {
                     
                     if (isUnix()) {
                         sh "docker build --no-cache -t ${imageTag} ."
-                    } else if (isWindows()) {
+                    } else {
+                        // For Windows, use bat instead of sh
                         bat "docker build --no-cache -t ${imageTag} ."
                     }
                 }
@@ -55,8 +57,8 @@ pipeline {
                         if (isUnix()) {
                             // Run Cypress tests in the foreground on Unix-like systems (Linux/MacOS)
                             sh 'npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}'
-                        } else if (isWindows()) {
-                            // Run Cypress tests in the foreground on Windows
+                        } else {
+                            // For Windows, use bat instead of sh
                             bat 'npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}'
                         }
                     }
@@ -64,40 +66,44 @@ pipeline {
             }
         }
 
-//         stage('Push Docker Image') {
-//             when {
-//                 allOf {
-//                     branch 'main'
-//                     expression { currentBuild.result == 'SUCCESS' }
-//                 }
-//             }
-//             steps {
-//                 script {
-//                     docker.withRegistry('https://hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
-//                         docker.image("${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}").push()
-//                     }
-//                 }
-//             }
-//         }
-//     }
+        // Optional: Uncomment the following stage for pushing the Docker image to the registry
+        /*
+        stage('Push Docker Image') {
+            when {
+                allOf {
+                    branch 'main'
+                    expression { currentBuild.result == 'SUCCESS' }
+                }
+            }
+            steps {
+                script {
+                    docker.withRegistry('https://hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
+                        docker.image("${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}").push()
+                    }
+                }
+            }
+        }
+        */
 
-//     post {
-//         always {
+    }
 
-//             script {
-//                 // Clean up Docker artifacts to avoid accumulation of unused data
-//                 if (isUnix()) {
-//                     sh 'docker system prune -f'
-//                 } else if (isWindows()) {
-//                     bat 'docker system prune -f'
-//                 }
-//             }
-//         }
-//         success {
-//             echo 'Tests passed, Docker image pushed successfully.'
-//         }
-//         failure {
-//             echo 'Tests failed, Docker image not pushed.'
-//         }
+    post {
+        always {
+            script {
+                // Clean up Docker artifacts to avoid accumulation of unused data
+                if (isUnix()) {
+                    sh 'docker system prune -f'
+                } else {
+                    // For Windows, use bat instead of sh
+                    bat 'docker system prune -f'
+                }
+            }
+        }
+        success {
+            echo 'Tests passed, Docker image pushed successfully.'
+        }
+        failure {
+            echo 'Tests failed, Docker image not pushed.'
+        }
     }
 }
