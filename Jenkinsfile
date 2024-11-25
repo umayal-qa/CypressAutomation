@@ -29,16 +29,17 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                    echo "Building Docker image with the following tag: ${imageTag}"
+                        def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                        echo "Building Docker image with the following tag: ${imageTag}"
 
-                    if (isUnix()) {
-                        sh "docker build --no-cache -t ${imageTag} ."
-                    } else {
-                        bat "docker build --no-cache -t ${imageTag} ."
+                        if (isUnix()) {
+                            sh "docker build --no-cache -t ${imageTag} ."
+                        } else {
+                            bat "docker build --no-cache -t ${imageTag} ."
+                        }
                     }
                 }
-            }
+
         }
 
         stage('Run Specific Cypress Test') {
@@ -60,16 +61,15 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                script {
-                def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                def image = docker.image(imageTag)
+               script {
+                    def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                    def image = docker.image(imageTag)
 
-                // Use Docker Hub credentials securely
-                docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
-                    // Push both the specific build tag and the "latest" tag
-                    image.push("${BUILD_NUMBER}")
-                    image.push("latest")
-                }
+                    docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
+                        // Push the image with the build number tag and the "latest" tag
+                        image.push("${COMMIT_HASH}-${BUILD_NUMBER}")
+                        image.push("latest")
+                    }
             }
         }
     }
