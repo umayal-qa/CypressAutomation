@@ -75,6 +75,8 @@ pipeline {
                             """
                         } else {
                             bat """
+                                echo DOCKER_USER: %DOCKER_USER%     
+                                echo DOCKER_TOKEN: %DOCKER_TOKEN%
                                 echo %DOCKER_TOKEN% | docker login -u %DOCKER_USER% --password-stdin
                             """
                         }
