@@ -29,14 +29,14 @@ pipeline {
             steps {
                 script {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                    
+
                     // Debug: Print environment variables to ensure they are set correctly
                     echo "Building Docker image with the following tag: ${imageTag}"
                     echo "REGISTRY: ${REGISTRY}"
                     echo "IMAGE_NAME: ${IMAGE_NAME}"
                     echo "COMMIT_HASH: ${COMMIT_HASH}"
                     echo "BUILD_NUMBER: ${BUILD_NUMBER}"
-                    
+
                     // Build the image depending on the platform
                     if (isUnix()) {
                         sh "docker build --no-cache -t ${imageTag} ."
@@ -52,6 +52,7 @@ pipeline {
                 script {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
                     def image = docker.image(imageTag)
+
                     // Manually run the container with necessary options if `docker.inside()` is problematic.
                     if (isUnix()) {
                         sh "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging"
@@ -85,14 +86,13 @@ pipeline {
                         sh "docker push umayalqa/pythonapi:pythonframe"
                     } else {
                         // For Windows, similar logic can be applied
-                        bat "docker login -u ${DOCKER_CREDENTIALS_ID} -p $(cat /path/to/password/file)"
+                        bat "docker login -u ${DOCKER_CREDENTIALS_ID} -p \$(cat /path/to/password/file)"
                         bat "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
                         bat "docker push umayalqa/pythonapi:pythonframe"
                     }
                 }
             }
         }
-
     }
 
     post {
