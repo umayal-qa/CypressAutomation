@@ -59,21 +59,25 @@ pipeline {
         }
 
         stage('Push Docker Image') {
-            steps {
-                script {
-                    // Use Jenkins credentials securely to login to Docker Hub using Personal Access Token
-                    def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                    def image = docker.image(imageTag)
+    steps {
+        script {
+            // Define the image tag
+            def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+            def image = docker.image(imageTag)
 
-                    docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
-                        // Push the image with the build number tag and the "latest" tag
-                        image.push("${BUILD_NUMBER}")
-                        image.push("latest")
-                    }
-                }
+            // Tag the image with "latest"
+            image.tag("${REGISTRY}/${IMAGE_NAME}:latest")
+
+            // Use Docker Hub credentials securely
+            docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
+                // Push both the specific build tag and the "latest" tag
+                image.push("${COMMIT_HASH}-${BUILD_NUMBER}")
+                image.push("latest")
             }
         }
     }
+}
+
 
     post {
         always {
