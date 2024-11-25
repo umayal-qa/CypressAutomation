@@ -62,14 +62,14 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                script {
-                    def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                    def image = docker.image(imageTag)
+                    // def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                    // def image = docker.image(imageTag)
 
-                    docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
-                        // Push the image with the build number tag and the "latest" tag
-                        image.push()  // Push with commit hash tag
-                        image.push("latest")  // Push with "latest" tag
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials-id') {
+                        def image = docker.build("umayalqa/cypressautomation:latest")
+                        image.push()
                     }
+
             }
         }
     }
