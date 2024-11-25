@@ -47,17 +47,18 @@ pipeline {
             }
         }
 
-        stage('Run Cypress Tests') {
+        stage('Run Specific Cypress Test') {
             steps {
                 script {
+                    def testFile = 'cypress/integration/examples/UdemyTest.spec.js'
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
                     def image = docker.image(imageTag)
 
-                    // Manually run the container with necessary options if `docker.inside()` is problematic.
+                    // Run specific Cypress test in headless mode using chrome
                     if (isUnix()) {
-                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npm install"
+                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --spec ${testFile} --headless --browser chrome"
                     } else {
-                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npm install"
+                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --spec ${testFile} --headless --browser chrome"
                     }
                 }
             }
