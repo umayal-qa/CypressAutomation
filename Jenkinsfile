@@ -71,8 +71,8 @@ pipeline {
                 // Use Docker Hub credentials securely
                 docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
                     // Push both the specific build tag and the "latest" tag
-                    image.push("${COMMIT_HASH}-${BUILD_NUMBER}")
-                    image.push("latest")
+                    image.push()
+                    // image.push()
                 }
             }
         }
