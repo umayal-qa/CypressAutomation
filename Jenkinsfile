@@ -75,9 +75,9 @@ pipeline {
                             """
                         } else {
                             bat """
-                                echo "DOCKER_USER: \$env:DOCKER_USER"
-                                echo "DOCKER_TOKEN: \$env:DOCKER_TOKEN"
-                                \$env:DOCKER_TOKEN | docker login -u \$env:DOCKER_USER --password-stdin
+                               echo "DOCKER_USER: $env:DOCKER_USER"
+                               echo "DOCKER_TOKEN: $env:DOCKER_TOKEN"
+                               echo $env:DOCKER_TOKEN | docker login -u $env:DOCKER_USER --password-stdin
                             """
                         }
                     }
