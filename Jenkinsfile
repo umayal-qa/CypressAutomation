@@ -41,21 +41,24 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Run Specific Cypress Test') {
             steps {
                 script {
+                    def testFile = 'cypress/integration/examples/UdemyTest.spec.js'
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                    echo "Building Docker image with the following tag: ${imageTag}"
+                    def image = docker.image(imageTag)
 
-                    // Build the Docker image based on the environment (Unix or Windows)
+                    // Run specific Cypress test in headless mode using chrome
                     if (isUnix()) {
-                        sh "docker build --no-cache -t ${imageTag} ."
+                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --spec ${testFile} --headless --browser chrome"
                     } else {
-                        bat "docker build --no-cache -t ${imageTag} ."
+                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --spec ${testFile} --headless --browser chrome"
                     }
                 }
             }
         }
+
+
 
 
         stage('Push Docker Image') {
