@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME = 'cypress-docker-image'
         BUILD_NUMBER = "${BUILD_NUMBER}"
         COMMIT_HASH = "${GIT_COMMIT}"
-        REGISTRY = 'umayalqa/cypressautomation'
+        REGISTRY = 'cypressautomation'
         DOCKER_CREDENTIALS_ID = 'dockerhubtoken'
         CYPRESS_ENV = 'staging'
         GIT_REPO_URL = 'https://github.com/umayal-qa/CypressAutomation.git'
@@ -67,8 +67,8 @@ pipeline {
 
                     docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
                         // Push the image with the build number tag and the "latest" tag
-                        image.push("${COMMIT_HASH}-${BUILD_NUMBER}")
-                        image.push("latest")
+                        image.push()  // Push with commit hash tag
+                        image.push("latest")  // Push with "latest" tag
                     }
             }
         }
