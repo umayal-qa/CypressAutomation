@@ -75,8 +75,9 @@ pipeline {
 
                 // Push Docker image always regardless of test result
                 def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                docker.withRegistry(${REGISTRY}, "${DOCKER_CREDENTIALS_ID}") {
-                    docker.image(imageTag).push()
+                // docker.withRegistry(${REGISTRY}, "${DOCKER_CREDENTIALS_ID}") {
+                //     docker.image(imageTag).push()
+                    docker push umayalqa/cypressautomation:"${imageTag}"
                     echo "Docker image ${imageTag} pushed to registry."
                 }
             }
