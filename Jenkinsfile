@@ -60,23 +60,24 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                    script {
-            // Define the image tag
-            def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-            def image = docker.image(imageTag)
+                script {
+                // Define the image tag
+                def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                def image = docker.image(imageTag)
 
-            // Tag the image with "latest"
-            image.tag("${REGISTRY}/${IMAGE_NAME}:latest")
+                // Tag the image with "latest"
+                image.tag("${REGISTRY}/${IMAGE_NAME}:latest")
 
-            // Use Docker Hub credentials securely
-            docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
-                // Push both the specific build tag and the "latest" tag
-                image.push("${COMMIT_HASH}-${BUILD_NUMBER}")
-                image.push("latest")
-                    }
+                // Use Docker Hub credentials securely
+                docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
+                    // Push both the specific build tag and the "latest" tag
+                    image.push("${COMMIT_HASH}-${BUILD_NUMBER}")
+                    image.push("latest")
+                }
             }
         }
     }
+
 
 }
 
