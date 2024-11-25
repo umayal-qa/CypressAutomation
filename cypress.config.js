@@ -21,6 +21,13 @@ module.exports = defineConfig({
       // Add event listeners for plugins or custom actions if needed
       // Example: sqlServer.addCypressSQLPlugin(on, config);
     },
+    launchOptions: {
+      args: [
+        '--no-sandbox',            // Disable the Chrome sandbox (necessary for some CI environments)
+        '--disable-gpu',           // Disable GPU hardware acceleration (useful for headless mode)
+        '--disable-software-rasterizer',  // Optional: Force software rasterizer to be used
+      ],
+    },
   },
 
   headers: { 

@@ -61,23 +61,6 @@ pipeline {
                 }
             }
         }
-
-
-        stage('Push Docker Image') {
-            when {
-                allOf {
-                    branch 'main'
-                    expression { currentBuild.result == 'SUCCESS' }
-                }
-            }
-            steps {
-                script {
-                    docker.withRegistry('docker.io', "${DOCKER_CREDENTIALS_ID}") {
-                        docker.image("${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}").push()
-                    }
-                }
-            }
-        }
     }
 
     post {
@@ -94,8 +77,4 @@ pipeline {
         success {
             echo 'Tests passed, Docker image pushed successfully.'
         }
-        failure {
-            echo 'Tests failed, Docker image not pushed.'
-        }
-    }
-}
+        failu
