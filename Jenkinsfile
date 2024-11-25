@@ -77,4 +77,18 @@ pipeline {
         success {
             echo 'Tests passed, Docker image pushed successfully.'
         }
-        failu
+        failure {
+            echo 'Tests failed, Docker image pushed successfully.'
+        }
+        // Push Docker image always regardless of test result
+        always {
+            script {
+                def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                docker.withRegistry('docker.io', "${DOCKER_CREDENTIALS_ID}") {
+                    docker.image(imageTag).push()
+                    echo "Docker image ${imageTag} pushed to registry."
+                }
+            }
+        }
+    }
+}
