@@ -8,7 +8,6 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'dockerhub-creds'
         GIT_REPO_URL = 'https://github.com/umayal-qa/CypressAutomation.git'
         CYPRESS_ENV = 'staging'
-        environment {registry = "docker_hub_account/repository_name",registryCredential = 'dockerhub'}
     }
     stages {
         stage('Check Docker Info') {
