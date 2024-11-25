@@ -47,20 +47,20 @@ pipeline {
             }
         }
 
-        // stage('Run Cypress Tests') {
-        //     steps {
-        //         script {
-        //             def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-        //             def image = docker.image(imageTag)
-        //             // Manually run the container with necessary options if `docker.inside()` is problematic.
-        //             if (isUnix()) {
-        //                 sh "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging --no-sandbox --disable-gpu --disable-software-rasterizer --chromeWebSecurity=false"
-        //             } else {
-        //                 bat "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging --no-sandbox --disable-gpu --disable-software-rasterizer --chromeWebSecurity=false"
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Run Cypress Tests') {
+            steps {
+                script {
+                    def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                    def image = docker.image(imageTag)
+                    // Manually run the container with necessary options if `docker.inside()` is problematic.
+                    if (isUnix()) {
+                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging --no-sandbox --disable-gpu --disable-software-rasterizer --chromeWebSecurity=false"
+                    } else {
+                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging --no-sandbox --disable-gpu --disable-software-rasterizer --chromeWebSecurity=false"
+                    }
+                }
+            }
+        }
 
 
         stage('Push Docker Image') {
