@@ -71,7 +71,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_TOKEN')]) {
                         if (isUnix()) {
                             sh """
-                                echo \$DOCKER_TOKEN | docker login -u \$DOCKER_USER --password-stdin
+                                echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
                             """
                         } else {
                             bat """
