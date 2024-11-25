@@ -59,8 +59,8 @@ pipeline {
         }
 
         stage('Push Docker Image') {
-    steps {
-        script {
+            steps {
+                    script {
             // Define the image tag
             def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
             def image = docker.image(imageTag)
@@ -73,9 +73,11 @@ pipeline {
                 // Push both the specific build tag and the "latest" tag
                 image.push("${COMMIT_HASH}-${BUILD_NUMBER}")
                 image.push("latest")
+                    }
             }
         }
     }
+
 }
 
 
