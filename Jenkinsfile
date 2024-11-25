@@ -54,9 +54,9 @@ pipeline {
                     def image = docker.image(imageTag)
                     // Manually run the container with necessary options if `docker.inside()` is problematic.
                     if (isUnix()) {
-                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging  --disable-gpu --disable-software-rasterizer --chromeWebSecurity=false"
+                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging"
                     } else {
-                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging --disable-gpu --disable-software-rasterizer --chromeWebSecurity=false"
+                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging"
                     }
                 }
             }
