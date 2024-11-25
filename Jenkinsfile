@@ -65,7 +65,7 @@ pipeline {
                     // def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
                     // def image = docker.image(imageTag)
 
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials-id') {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhubtoken') {
                         def image = docker.build("umayalqa/cypressautomation:latest")
                         image.push()
                     }
