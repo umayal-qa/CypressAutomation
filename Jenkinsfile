@@ -49,12 +49,12 @@ pipeline {
                     echo "Tagging Docker image ${imageTag} for DockerHub registry"
 
                     // Use Jenkins credentials securely to login to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_TOKEN')]){
                         if (isUnix()) {
                             // Run the docker login command for Unix (Linux/macOS)
                             sh """
                                 export DOCKER_CLI_EXPERIMENTAL=enabled
-                                echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                                echo \$DOCKER_TOKEN | docker login -u \$DOCKER_USER --password-stdin
                             """
                         } else {
                             // Run the docker login command for Windows (bat command)
