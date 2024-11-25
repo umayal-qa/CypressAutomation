@@ -9,7 +9,7 @@
     "headtest": "npm run test -- --headed",
     "chrometest": "npm run test -- --browser chrome",
     "headlessChromeTest": "npm run test --headless --browser chrome",
-    "udemytest": "npm run test -- --spec cypress/integration/examples/UdemyTest.spec.js",
+    "udemytest": "npx cypress run --spec cypress/integration/examples/UdemyTest.spec.js",
     "recordDashBoardtest": "npx cypress run --record --key 90e4df38-7164-45fc-8af5-ad2f9e51c3bb --reporter mochawesome"
   },
   "author": "",
