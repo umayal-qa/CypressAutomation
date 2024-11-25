@@ -65,15 +65,28 @@ pipeline {
 
                     // Enabling experimental CLI features (optional)
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh """
-                            export DOCKER_CLI_EXPERIMENTAL=enabled
-                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
-                        """
+                     if (isUnix()) {
+                            // Run the docker login command for Unix (Linux/macOS)
+                            sh """
+                                export DOCKER_CLI_EXPERIMENTAL=enabled
+                                echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                            """
+                        } else {
+                            // Run the docker login command for Windows (bat command)
+                            bat """
+                                echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                            """
+                        }
                     }
 
-                    // Tagging and pushing the Docker image
-                    sh "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:cypressframe"
-                    sh "docker push ${REGISTRY}/${IMAGE_NAME}:cypressframe"
+                    // Tag and push the Docker image
+                    if (isUnix()) {
+                        sh "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:cypressframe"
+                        sh "docker push ${REGISTRY}/${IMAGE_NAME}:cypressframe"
+                    } else {
+                        bat "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:cypressframe"
+                        bat "docker push ${REGISTRY}/${IMAGE_NAME}:cypressframe"
+                    }
                 }
             }
         }
