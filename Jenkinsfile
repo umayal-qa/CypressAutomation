@@ -73,14 +73,15 @@ pipeline {
                         }
 
                         // Tagging and pushing the Docker image
-                        sh "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
-                        sh "docker push umayalqa/pythonapi:pythonframe"
+                        sh "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:pythonframe"
+                        sh "docker push ${REGISTRY}/${IMAGE_NAME}:pythonframe"
                     } else {
+                        // Windows equivalent using bat command
                         bat """
                             echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                         """
-                        bat "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
-                        bat "docker push umayalqa/pythonapi:pythonframe"
+                        bat "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:pythonframe"
+                        bat "docker push ${REGISTRY}/${IMAGE_NAME}:pythonframe"
                     }
                 }
             }
