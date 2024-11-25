@@ -69,26 +69,30 @@ pipeline {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
 
                     // Push Docker image logic
-                    // Build the image
                     echo "Tagging Docker image ${imageTag} for DockerHub registry"
-                   if (isUnix()) {
-                            // Docker login is done here with credentials in Jenkins
-                            // Escape the $ in the shell command
-                            sh 'docker login -u ${DOCKER_CREDENTIALS_ID} -p $(cat /path/to/password/file)'
 
-                            // Tagging the Docker image
-                            sh "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
-
-                            // Push the tagged image
-                            sh "docker push umayalqa/pythonapi:pythonframe"
-                        } else {
-                            bat "docker login -u ${DOCKER_CREDENTIALS_ID} -p $(cat /path/to/password/file)"
-                            bat "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
-                            bat "docker push umayalqa/pythonapi:pythonframe"
+                    // Using Jenkins credentials securely for Docker login
+                    if (isUnix()) {
+                        // Login using Jenkins credentials securely
+                        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                            sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
                         }
+
+                        // Tagging the Docker image
+                        sh "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
+
+                        // Push the tagged image
+                        sh "docker push umayalqa/pythonapi:pythonframe"
+                    } else {
+                        // For Windows, similar logic can be applied
+                        bat "docker login -u ${DOCKER_CREDENTIALS_ID} -p $(cat /path/to/password/file)"
+                        bat "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
+                        bat "docker push umayalqa/pythonapi:pythonframe"
+                    }
                 }
             }
         }
+
     }
 
     post {
