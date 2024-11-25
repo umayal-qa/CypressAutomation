@@ -54,9 +54,9 @@ pipeline {
                     def image = docker.image(imageTag)
                     // Manually run the container with necessary options if `docker.inside()` is problematic.
                     if (isUnix()) {
-                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}"
+                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --headless --browser chrome --env environment=staging --no-sandbox --disable-gpu --disable-software-rasterizer --chromeWebSecurity=false"
                     } else {
-                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --headless --browser chrome --env environment=${CYPRESS_ENV}"
+                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --headless --browser chrome --env environment=staging --no-sandbox --disable-gpu --disable-software-rasterizer --chromeWebSecurity=false"
                     }
                 }
             }
