@@ -6,7 +6,7 @@ pipeline {
         BUILD_NUMBER = "${BUILD_NUMBER}"
         COMMIT_HASH = "${GIT_COMMIT}"
         REGISTRY = 'umayalqa/cypressautomation'
-        DOCKER_CREDENTIALS_ID = 'dockerhubtoken'
+        DOCKER_CREDENTIALS_ID = 'dockerhubtoken'  // Jenkins credentials ID
         GIT_REPO_URL = 'https://github.com/umayal-qa/CypressAutomation.git'
         CYPRESS_ENV = 'staging'
     }
@@ -32,6 +32,7 @@ pipeline {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
                     echo "Building Docker image with the following tag: ${imageTag}"
 
+                    // Build the Docker image based on the environment (Unix or Windows)
                     if (isUnix()) {
                         sh "docker build --no-cache -t ${imageTag} ."
                     } else {
@@ -48,28 +49,28 @@ pipeline {
 
                     echo "Tagging Docker image ${imageTag} for DockerHub registry"
 
-                    // Use Jenkins credentials securely to login to Docker Hub using Personal Access Token
+                    // Log in to Docker Hub using Jenkins credentials securely (via Personal Access Token)
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_TOKEN')]) {
                         if (isUnix()) {
-                            // Run the docker login command for Unix (Linux/macOS)
+                            // Run the docker login command for Unix-based systems (Linux/macOS)
                             sh """
                                 echo \$DOCKER_TOKEN | docker login -u \$DOCKER_USER --password-stdin
                             """
                         } else {
-                            // Run the docker login command for Windows (bat command)
+                            // Run the docker login command for Windows-based systems
                             bat """
                                 echo %DOCKER_TOKEN% | docker login -u %DOCKER_USER% --password-stdin
                             """
                         }
                     }
 
-                    // Tag and push the Docker image
+                    // Tag and push the Docker image (for both 'latest' and commit-specific tags)
                     if (isUnix()) {
-                        sh "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:latest"
-                        sh "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
+                        sh "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                        sh "docker push ${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
                     } else {
-                        bat "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:latest"
-                        bat "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
+                        bat "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                        bat "docker push ${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
                     }
                 }
             }
@@ -79,6 +80,7 @@ pipeline {
     post {
         always {
             script {
+                // Clean up unused Docker images and containers after the build
                 if (isUnix()) {
                     sh 'docker system prune -f'
                 } else {
