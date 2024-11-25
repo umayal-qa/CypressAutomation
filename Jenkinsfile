@@ -41,29 +41,21 @@ pipeline {
             }
         }
 
-        stage('Run Cypress Tests') {
+        stage('Build Docker Image') {
             steps {
-               script {
-            def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                script {
+                    def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+                    echo "Building Docker image with the following tag: ${imageTag}"
 
-            echo "Running Cypress tests using Docker image ${imageTag}"
-
-            // Mount workspace and set the working directory
-            docker.image("${imageTag}").inside(
-                "-v /c/ProgramData/Jenkins/.jenkins/workspace/Docker_Build_Image:/app " + 
-                "-w /app"
-            ) {
-                sh '''
-                    # Set environment variable for Cypress
-                    export CYPRESS_ENV=${CYPRESS_ENV}
-
-                    # Run Cypress tests (assuming Cypress is installed in the container)
-                    npx cypress run --env configFile=${CYPRESS_ENV}
-                '''
+                    // Build the Docker image based on the environment (Unix or Windows)
+                    if (isUnix()) {
+                        sh "docker build --no-cache -t ${imageTag} ."
+                    } else {
+                        bat "docker build --no-cache -t ${imageTag} ."
+                    }
+                }
             }
         }
-    }
-}
 
 
         stage('Push Docker Image') {
