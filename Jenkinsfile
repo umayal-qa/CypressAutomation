@@ -63,29 +63,21 @@ pipeline {
 
                     echo "Tagging Docker image ${imageTag} for DockerHub registry"
 
-                    if (isUnix()) {
-                        // Using Jenkins credentials securely for Docker login
-                        withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                            // Docker login with password passed securely via stdin
-                            sh """
-                                echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
-                            """
-                        }
-
-                        // Tagging and pushing the Docker image
-                        sh "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:pythonframe"
-                        sh "docker push ${REGISTRY}/${IMAGE_NAME}:pythonframe"
-                    } else {
-                        // Windows equivalent using bat command
-                        bat """
-                            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    // Enabling experimental CLI features (optional)
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                            export DOCKER_CLI_EXPERIMENTAL=enabled
+                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
                         """
-                        bat "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:pythonframe"
-                        bat "docker push ${REGISTRY}/${IMAGE_NAME}:pythonframe"
                     }
+
+                    // Tagging and pushing the Docker image
+                    sh "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:cypressframe"
+                    sh "docker push ${REGISTRY}/${IMAGE_NAME}:cypressframe"
                 }
             }
         }
+    }
     }
 
     post {
