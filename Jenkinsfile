@@ -65,8 +65,8 @@ pipeline {
                 def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
                 def image = docker.image(imageTag)
 
-                // Tag the image with "latest"
-                image.tag("${REGISTRY}/${IMAGE_NAME}:latest")
+                // // Tag the image with "latest"
+                // image.tag("${REGISTRY}/${IMAGE_NAME}:latest")
 
                 // Use Docker Hub credentials securely
                 docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
