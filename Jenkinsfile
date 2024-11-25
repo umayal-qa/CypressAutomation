@@ -13,7 +13,6 @@ pipeline {
         stage('Check Docker Info') {
             steps {
                 script {
-                    // Determine platform dynamically
                     def dockerInfo
                     if (isUnix()) {
                         dockerInfo = sh(script: 'docker info', returnStdout: true).trim()
@@ -30,14 +29,8 @@ pipeline {
                 script {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
 
-                    // Debug: Print environment variables to ensure they are set correctly
                     echo "Building Docker image with the following tag: ${imageTag}"
-                    echo "REGISTRY: ${REGISTRY}"
-                    echo "IMAGE_NAME: ${IMAGE_NAME}"
-                    echo "COMMIT_HASH: ${COMMIT_HASH}"
-                    echo "BUILD_NUMBER: ${BUILD_NUMBER}"
 
-                    // Build the image depending on the platform
                     if (isUnix()) {
                         sh "docker build --no-cache -t ${imageTag} ."
                     } else {
@@ -54,7 +47,6 @@ pipeline {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
                     def image = docker.image(imageTag)
 
-                    // Run specific Cypress test in headless mode using chrome
                     if (isUnix()) {
                         sh "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --spec ${testFile} --headless --browser chrome"
                     } else {
@@ -64,32 +56,26 @@ pipeline {
             }
         }
 
-        // Corrected the placement of the 'Push Docker Image' stage
         stage('Push Docker Image') {
             steps {
                 script {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
 
-                    // Push Docker image logic
                     echo "Tagging Docker image ${imageTag} for DockerHub registry"
 
-                    // Using Jenkins credentials securely for Docker login
                     if (isUnix()) {
-                        // Login using Jenkins credentials securely
-                        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        // Using Jenkins credentials securely for Docker login
+                        withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                             // Docker login with password passed securely via stdin
                             sh """
                                 echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
                             """
                         }
 
-                        // Tagging the Docker image
+                        // Tagging and pushing the Docker image
                         sh "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
-
-                        // Push the tagged image
                         sh "docker push umayalqa/pythonapi:pythonframe"
                     } else {
-                        // For Windows (using BAT), use similar logic
                         bat """
                             echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                         """
@@ -104,7 +90,6 @@ pipeline {
     post {
         always {
             script {
-                // Clean up Docker artifacts to avoid accumulation of unused data
                 if (isUnix()) {
                     sh 'docker system prune -f'
                 } else {
