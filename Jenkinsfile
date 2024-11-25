@@ -6,7 +6,7 @@ pipeline {
         BUILD_NUMBER = "${BUILD_NUMBER}"
         COMMIT_HASH = "${GIT_COMMIT}"
         REGISTRY = 'umayalqa/cypressautomation'
-        DOCKER_CREDENTIALS_ID = 'dockerhub-creds'
+        DOCKER_CREDENTIALS_ID = 'dockerhubtoken'
         GIT_REPO_URL = 'https://github.com/umayal-qa/CypressAutomation.git'
         CYPRESS_ENV = 'staging'
     }
@@ -48,29 +48,28 @@ pipeline {
 
                     echo "Tagging Docker image ${imageTag} for DockerHub registry"
 
-                    // Use Jenkins credentials securely to login to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_TOKEN')]){
+                    // Use Jenkins credentials securely to login to Docker Hub using Personal Access Token
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_TOKEN')]) {
                         if (isUnix()) {
                             // Run the docker login command for Unix (Linux/macOS)
                             sh """
-                                export DOCKER_CLI_EXPERIMENTAL=enabled
                                 echo \$DOCKER_TOKEN | docker login -u \$DOCKER_USER --password-stdin
                             """
                         } else {
                             // Run the docker login command for Windows (bat command)
                             bat """
-                                echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                                echo %DOCKER_TOKEN% | docker login -u %DOCKER_USER% --password-stdin
                             """
                         }
                     }
 
                     // Tag and push the Docker image
                     if (isUnix()) {
-                        sh "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:cypressframe"
-                        sh "docker push ${REGISTRY}/${IMAGE_NAME}:cypressframe"
+                        sh "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:latest"
+                        sh "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
                     } else {
-                        bat "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:cypressframe"
-                        bat "docker push ${REGISTRY}/${IMAGE_NAME}:cypressframe"
+                        bat "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:latest"
+                        bat "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
                     }
                 }
             }
