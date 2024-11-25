@@ -61,6 +61,33 @@ pipeline {
                 }
             }
         }
+
+        // Corrected the placement of the 'Push Docker Image' stage
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+
+                    // Push Docker image logic
+                    // Build the image
+                    echo "Tagging Docker image ${imageTag} for DockerHub registry"
+                    if (isUnix()) {
+                        // Docker login is done here with credentials in Jenkins
+                        sh 'docker login -u ${DOCKER_CREDENTIALS_ID} -p $(cat /path/to/password/file)'
+
+                        // Tagging the Docker image
+                        sh "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
+
+                        // Push the tagged image
+                        sh "docker push umayalqa/pythonapi:pythonframe"
+                    } else {
+                        bat "docker login -u ${DOCKER_CREDENTIALS_ID} -p $(cat /path/to/password/file)"
+                        bat "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
+                        bat "docker push umayalqa/pythonapi:pythonframe"
+                    }
+                }
+            }
+        }
     }
 
     post {
@@ -71,14 +98,6 @@ pipeline {
                     sh 'docker system prune -f'
                 } else {
                     bat 'docker system prune -f'
-                }
-
-                // Push Docker image always regardless of test result
-                def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                // docker.withRegistry(${REGISTRY}, "${DOCKER_CREDENTIALS_ID}") {
-                //     docker.image(imageTag).push()
-                    docker push umayalqa/cypressautomation:"${imageTag}"
-                    echo "Docker image ${imageTag} pushed to registry."
                 }
             }
         }
