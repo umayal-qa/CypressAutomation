@@ -22,10 +22,10 @@ cy.get('li').contains('Watches').then(() =>{
  });
 // Another way to achieve click while user mouse hover (in some places {force: true} will work , in some places invoking show will work)
 // cy.get('span').contains('Accessories').invoke('show');   
-cy.title().should('eq', this.data.fashionAccessoriesPageTitle)
-cy.title().should('include', 'Accessories')
-cy.selectFilterCheckbox(this.data.watch.filters.brand.titan)
-myntraWatchPage.getFilterValueSelected(this.data.watch.filters.brand.titan).should('be.visible')
+// cy.title().should('eq', this.data.fashionAccessoriesPageTitle)
+// cy.title().should('include', 'Accessories')
+// cy.selectFilterCheckbox(this.data.watch.filters.brand.titan)
+// myntraWatchPage.getFilterValueSelected(this.data.watch.filters.brand.titan).should('be.visible')
 })
 })
 

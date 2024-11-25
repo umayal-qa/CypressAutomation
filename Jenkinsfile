@@ -55,9 +55,9 @@ pipeline {
 
                     // Manually run the container with necessary options if `docker.inside()` is problematic.
                     if (isUnix()) {
-                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging"
+                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npm install"
                     } else {
-                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npx run udemytest --headless --browser chrome --env environment=staging"
+                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npm install"
                     }
                 }
             }

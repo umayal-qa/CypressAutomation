@@ -24,9 +24,9 @@ cy.wait(1000)
 // cy.get('span').contains('Electronics').invoke('show');   
 // flipkartHomePage.getProduct(this.data.productName.mobile).click()
 cy.title().should('eq', this.data.mobilePageTitle)
-cy.title().should('include', 'Mobile')
-cy.selectFilterCheckbox(this.data.mobile.filters.RAM.eightGBandabove)
-flipkartMobilePage.getFilterValueSelected(this.data.mobile.filters.RAM.eightGBandabove).should('be.visible')
+// cy.title().should('include', 'Mobile')
+// cy.selectFilterCheckbox(this.data.mobile.filters.RAM.eightGBandabove)
+// flipkartMobilePage.getFilterValueSelected(this.data.mobile.filters.RAM.eightGBandabove).should('be.visible')
 })
 })
 

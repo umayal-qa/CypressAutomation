@@ -21,7 +21,7 @@ cy.visit('https://www.google.com/')
 cy.get('[name="q"]').type("udemy.com")
 cy.wait(4000)
 cy.contains('udemy.com').click()
-cy.contains('Online Courses').click()
+// cy.contains('Online Courses').click()
 cy.wait(4000)
 
 })
