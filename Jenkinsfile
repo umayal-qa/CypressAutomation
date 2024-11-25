@@ -42,25 +42,26 @@ pipeline {
         }
 
         stage('Run Cypress Tests') {
-            steps {
-                script {
-                    def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
+    steps {
+        script {
+            def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
 
-                    echo "Running Cypress tests using Docker image ${imageTag}"
+            echo "Running Cypress tests using Docker image ${imageTag}"
 
-                    // Use Docker image and run Cypress tests inside the container
-                    docker.image("${imageTag}").inside('--entrypoint=') {
-                        sh '''
-                            # Set environment variable for Cypress
-                            export CYPRESS_ENV=${CYPRESS_ENV}
+            // Use Docker image and run Cypress tests inside the container
+            docker.image("${imageTag}").inside("-v C:/ProgramData/Jenkins/.jenkins/workspace/Docker_Build_Image:/app") {
+                sh '''
+                    # Set environment variable for Cypress
+                    export CYPRESS_ENV=${CYPRESS_ENV}
 
-                            # Run Cypress tests (assuming Cypress is installed in the container)
-                            npx cypress run --env configFile=${CYPRESS_ENV}
-                        '''
-                    }
-                }
+                    # Run Cypress tests (assuming Cypress is installed in the container)
+                    npx cypress run --env configFile=${CYPRESS_ENV}
+                '''
             }
         }
+    }
+}
+
 
         stage('Push Docker Image') {
             steps {
