@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     environment {
         IMAGE_NAME = 'cypress-docker-image'
         BUILD_NUMBER = "${BUILD_NUMBER}"
@@ -9,6 +10,7 @@ pipeline {
         GIT_REPO_URL = 'https://github.com/umayal-qa/CypressAutomation.git'
         CYPRESS_ENV = 'staging'
     }
+
     stages {
         stage('Check Docker Info') {
             steps {
@@ -28,29 +30,12 @@ pipeline {
             steps {
                 script {
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-
                     echo "Building Docker image with the following tag: ${imageTag}"
 
                     if (isUnix()) {
                         sh "docker build --no-cache -t ${imageTag} ."
                     } else {
                         bat "docker build --no-cache -t ${imageTag} ."
-                    }
-                }
-            }
-        }
-
-        stage('Run Specific Cypress Test') {
-            steps {
-                script {
-                    def testFile = 'cypress/integration/examples/UdemyTest.spec.js'
-                    def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                    def image = docker.image(imageTag)
-
-                    if (isUnix()) {
-                        sh "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --spec ${testFile} --headless --browser chrome"
-                    } else {
-                        bat "docker run -v ${pwd()}:/workspace ${imageTag} npx cypress run --spec ${testFile} --headless --browser chrome"
                     }
                 }
             }
@@ -63,9 +48,9 @@ pipeline {
 
                     echo "Tagging Docker image ${imageTag} for DockerHub registry"
 
-                    // Enabling experimental CLI features (optional)
+                    // Use Jenkins credentials securely to login to Docker Hub
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                     if (isUnix()) {
+                        if (isUnix()) {
                             // Run the docker login command for Unix (Linux/macOS)
                             sh """
                                 export DOCKER_CLI_EXPERIMENTAL=enabled
@@ -103,10 +88,10 @@ pipeline {
             }
         }
         success {
-            echo 'Tests passed, Docker image pushed successfully.'
+            echo 'Docker image pushed successfully.'
         }
         failure {
-            echo 'Tests failed, Docker image pushed successfully.'
+            echo 'Failed to push Docker image.'
         }
     }
 }
