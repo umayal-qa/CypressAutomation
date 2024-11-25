@@ -4,10 +4,11 @@ pipeline {
         IMAGE_NAME = 'cypress-docker-image'
         BUILD_NUMBER = "${BUILD_NUMBER}"
         COMMIT_HASH = "${GIT_COMMIT}"
-        REGISTRY = 'docker.io'
+        REGISTRY = 'umayalqa/cypressautomation'
         DOCKER_CREDENTIALS_ID = 'dockerhub-creds'
         GIT_REPO_URL = 'https://github.com/umayal-qa/CypressAutomation.git'
         CYPRESS_ENV = 'staging'
+        environment {registry = "docker_hub_account/repository_name",registryCredential = 'dockerhub'}
     }
     stages {
         stage('Check Docker Info') {
@@ -75,7 +76,7 @@ pipeline {
 
                 // Push Docker image always regardless of test result
                 def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                docker.withRegistry('docker.io', "${DOCKER_CREDENTIALS_ID}") {
+                docker.withRegistry(${REGISTRY}, "${DOCKER_CREDENTIALS_ID}") {
                     docker.image(imageTag).push()
                     echo "Docker image ${imageTag} pushed to registry."
                 }
