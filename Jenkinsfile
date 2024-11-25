@@ -77,7 +77,10 @@ pipeline {
                     if (isUnix()) {
                         // Login using Jenkins credentials securely
                         withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                            sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
+                            // Docker login with password passed securely via stdin
+                            sh """
+                                echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                            """
                         }
 
                         // Tagging the Docker image
@@ -86,8 +89,10 @@ pipeline {
                         // Push the tagged image
                         sh "docker push umayalqa/pythonapi:pythonframe"
                     } else {
-                        // For Windows, similar logic can be applied
-                        bat "docker login -u ${DOCKER_CREDENTIALS_ID} -p \$(cat /path/to/password/file)"
+                        // For Windows (using BAT), use similar logic
+                        bat """
+                            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                        """
                         bat "docker tag ${imageTag} umayalqa/pythonapi:pythonframe"
                         bat "docker push umayalqa/pythonapi:pythonframe"
                     }
