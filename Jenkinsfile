@@ -62,23 +62,13 @@ pipeline {
             steps {
                 script {
                     // Use Jenkins credentials securely to login to Docker Hub using Personal Access Token
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_TOKEN')]) {
-                        withEnv(["DOCKER_USER=${DOCKER_USER}", "DOCKER_TOKEN=${DOCKER_TOKEN}"]) {
-                            // Run the docker login command for Windows (PowerShell)
-                            bat """
-                                echo %DOCKER_TOKEN% | docker login -u %DOCKER_USER% --password-stdin
-                            """
-                        }
-                    }
-
-                    // Tag and push the Docker image
                     def imageTag = "${REGISTRY}/${IMAGE_NAME}:${COMMIT_HASH}-${BUILD_NUMBER}"
-                    if (isUnix()) {
-                        sh "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:latest"
-                        sh "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
-                    } else {
-                        bat "docker tag ${imageTag} ${REGISTRY}/${IMAGE_NAME}:latest"
-                        bat "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
+                    def image = docker.image(imageTag)
+
+                    docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
+                        // Push the image with the build number tag and the "latest" tag
+                        image.push("${BUILD_NUMBER}")
+                        image.push("latest")
                     }
                 }
             }
